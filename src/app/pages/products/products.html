@@ -1,1 +1,114 @@
-<p>products works!</p>
+<div class="products-container">
+  <div class="products-header">
+    <h2>Gestão de Produtos</h2>
+    <button nz-button nzType="primary" (click)="openCreateModal()">
+      <span nz-icon nzType="plus"></span>
+      Novo Produto
+    </button>
+  </div>
+
+  <nz-table #basicTable [nzData]="products" [nzLoading]="loading" nzSize="middle">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Categoria</th>
+        <th>Preço</th>
+        <th>Status</th>
+        <th>Criado em</th>
+        <th nzWidth="200px">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of basicTable.data">
+        <td>{{ product.name }}</td>
+        <td>{{ product.category }}</td>
+        <td>{{ product.currentPrice | currency:'BRL':'symbol':'1.2-2' }}</td>
+        <td>
+          <nz-tag [nzColor]="product.isActive ? 'green' : 'red'">
+            {{ product.isActive ? 'Ativo' : 'Inativo' }}
+          </nz-tag>
+        </td>
+        <td>{{ formatDate(product.createdAt) }}</td>
+        <td>
+          <button nz-button nzType="primary" nzSize="small" style="margin-right: 8px;" 
+                  (click)="openEditModal(product)">
+            <span nz-icon nzType="edit"></span>
+            Editar
+          </button>
+          
+          <button nz-button nzType="default" nzSize="small" style="margin-right: 8px;" 
+                  *ngIf="!product.isActive"
+                  (click)="activateProduct(product.id)"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Deseja ativar este produto?"
+                  nzPopconfirmPlacement="top">
+            <span nz-icon nzType="check"></span>
+            Ativar
+          </button>
+          
+          <button nz-button nzType="primary" nzDanger nzSize="small" 
+                  (click)="deleteProduct(product.id)"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Tem certeza que deseja excluir este produto?"
+                  nzPopconfirmPlacement="top">
+            <span nz-icon nzType="delete"></span>
+            Excluir
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <div *ngIf="!loading && products.length === 0" class="empty-state">
+    <nz-empty nzNotFoundContent="Nenhum produto encontrado"></nz-empty>
+  </div>
+</div>
+
+<!-- Modal para Criar/Editar Produto -->
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  [nzTitle]="isEditMode ? 'Editar Produto' : 'Novo Produto'"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  nzOkText="Salvar"
+  nzCancelText="Cancelar">
+  
+  <ng-container *nzModalContent>
+    <form nz-form nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-label nzRequired>Nome</nz-form-label>
+        <nz-form-control>
+          <input nz-input 
+                 [(ngModel)]="productForm.name" 
+                 name="name"
+                 placeholder="Digite o nome do produto" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Categoria</nz-form-label>
+        <nz-form-control>
+          <input nz-input 
+                 [(ngModel)]="productForm.category" 
+                 name="category"
+                 placeholder="Digite a categoria do produto" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Preço</nz-form-label>
+        <nz-form-control>
+          <nz-input-number
+            [(ngModel)]="productForm.currentPrice"
+            name="currentPrice"
+            [nzMin]="0"
+            [nzStep]="0.01"
+            nzPlaceHolder="0.00"
+            [nzPrecision]="2"
+            style="width: 100%">
+          </nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>
