@@ -426,12 +426,4 @@ export class Wallets implements OnInit {
     return 'Detalhes da Carteira';
   }
 
-  // Formatadores para valores monetários
-  formatCurrency = (value: number): string => {
-    return `R$ ${value.toFixed(2)}`;
-  }
-
-  parseCurrency = (value: string): number => {
-    return Number(value.replace('R$ ', ''));
-  }
 }

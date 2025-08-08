@@ -11,6 +11,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { ProductsService, Product, CreateProductRequest, UpdateProductRequest, FirebaseTimestamp } from '../../services/products.service';
@@ -29,6 +30,7 @@ import { ProductsService, Product, CreateProductRequest, UpdateProductRequest, F
     NzFormModule,
     NzInputModule,
     NzInputNumberModule,
+    NzSelectModule,
     NzSwitchModule,
     NzTagModule
   ],

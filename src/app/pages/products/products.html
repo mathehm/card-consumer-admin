@@ -88,10 +88,15 @@
       <nz-form-item>
         <nz-form-label nzRequired>Categoria</nz-form-label>
         <nz-form-control>
-          <input nz-input 
+          <nz-select 
                  [(ngModel)]="productForm.category" 
                  name="category"
-                 placeholder="Digite a categoria do produto" />
+                 nzPlaceHolder="Selecione uma categoria">
+            <nz-option nzValue="Comidas" nzLabel="Comidas"></nz-option>
+            <nz-option nzValue="Bebidas" nzLabel="Bebidas"></nz-option>
+            <nz-option nzValue="Doces" nzLabel="Doces"></nz-option>
+            <nz-option nzValue="Brincadeiras" nzLabel="Brincadeiras"></nz-option>
+          </nz-select>
         </nz-form-control>
       </nz-form-item>
 
