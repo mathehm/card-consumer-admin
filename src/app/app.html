@@ -13,36 +13,32 @@
       </a>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-      <li nz-submenu nzOpen nzTitle="Dashboard" nzIcon="dashboard">
-        <ul>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/welcome">Welcome</a>
-          </li>
-        </ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/dashboard">
+          <span nz-icon nzType="dashboard"></span>
+          <span>Dashboard</span>
+        </a>
       </li>
 
-      <li nz-submenu nzOpen nzTitle="Usuários" nzIcon="user">
-        <ul>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/wallets">Usuários</a>
-          </li>
-        </ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/wallets">
+          <span nz-icon nzType="user"></span>
+          <span>Usuários</span>
+        </a>
       </li>
 
-      <li nz-submenu nzOpen nzTitle="Produtos" nzIcon="product">
-        <ul>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/products">Produtos</a>
-          </li>
-        </ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/products">
+          <span nz-icon nzType="shopping"></span>
+          <span>Produtos</span>
+        </a>
       </li>
 
-      <li nz-submenu nzOpen nzTitle="Configurações" nzIcon="setting">
-        <ul>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/welcome">Configurações</a>
-          </li>
-        </ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/welcome">
+          <span nz-icon nzType="setting"></span>
+          <span>Configurações</span>
+        </a>
       </li>
     </ul>
   </nz-sider>

@@ -1,0 +1,203 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>Dashboard</h2>
+    <p>Resumo geral do sistema</p>
+  </div>
+
+  <nz-spin [nzSpinning]="loading">
+    <!-- Resumo Geral -->
+    <div nz-row [nzGutter]="[16, 16]" class="summary-cards">
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Total de Usuários" 
+            [nzValue]="summary.totalWallets"
+            nzPrefix="user"
+            [nzValueStyle]="{ color: '#3f8600' }">
+          </nz-statistic>
+        </nz-card>
+      </div>
+      
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Saldo Total" 
+            [nzValue]="summary.totalBalance"
+            nzPrefix="dollar"
+            [nzValueStyle]="{ color: '#1890ff' }"
+            nzSuffix="R$">
+          </nz-statistic>
+        </nz-card>
+      </div>
+      
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Crédito Total" 
+            [nzValue]="summary.totalCredit"
+            nzPrefix="credit-card"
+            [nzValueStyle]="{ color: '#722ed1' }"
+            nzSuffix="R$">
+          </nz-statistic>
+        </nz-card>
+      </div>
+      
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Produtos Ativos" 
+            [nzValue]="summary.activeProducts"
+            nzPrefix="shopping"
+            [nzValueStyle]="{ color: '#52c41a' }">
+          </nz-statistic>
+        </nz-card>
+      </div>
+      
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Total de Produtos" 
+            [nzValue]="summary.totalProducts"
+            nzPrefix="appstore"
+            [nzValueStyle]="{ color: '#faad14' }">
+          </nz-statistic>
+        </nz-card>
+      </div>
+      
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Elegíveis p/ Sorteio" 
+            [nzValue]="summary.eligibleForLottery"
+            nzPrefix="trophy"
+            [nzValueStyle]="{ color: '#eb2f96' }">
+          </nz-statistic>
+        </nz-card>
+      </div>
+    </div>
+
+    <!-- Vendas do Dia -->
+    <div nz-row [nzGutter]="[16, 16]" class="sales-today-section" *ngIf="salesToday">
+      <div nz-col nzXs="24" nzSm="8">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Vendas Hoje" 
+            [nzValue]="salesToday.summary.totalValue"
+            nzPrefix="dollar-circle"
+            nzSuffix="R$"
+            [nzValueStyle]="{ color: '#52c41a' }">
+          </nz-statistic>
+        </nz-card>
+      </div>
+      
+      <div nz-col nzXs="24" nzSm="8">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Itens Vendidos Hoje" 
+            [nzValue]="salesToday.summary.totalItems"
+            nzPrefix="shopping-cart"
+            [nzValueStyle]="{ color: '#1890ff' }">
+          </nz-statistic>
+        </nz-card>
+      </div>
+      
+      <div nz-col nzXs="24" nzSm="8">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Transações Hoje" 
+            [nzValue]="salesToday.summary.totalTransactions"
+            nzPrefix="transaction"
+            [nzValueStyle]="{ color: '#722ed1' }">
+          </nz-statistic>
+        </nz-card>
+      </div>
+    </div>
+
+    <!-- Seção de Dados Detalhados -->
+    <div nz-row [nzGutter]="[16, 16]" class="detail-section">
+      <!-- Ranking de Produtos -->
+      <div nz-col nzXs="24" nzLg="14">
+        <nz-card nzTitle="Ranking de Produtos Mais Vendidos">
+          <nz-table #productTable [nzData]="productStats" nzSize="middle" [nzShowPagination]="false" [nzScroll]="{ y: '400px' }">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Qtd. Vendida</th>
+                <th>Receita</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let stat of productTable.data; let i = index">
+                <td>
+                  <strong>{{ stat.productName }}</strong>
+                  <br>
+                  <small class="ranking-position">#{{ i + 1 }}</small>
+                </td>
+                <td>{{ stat.category || 'N/A' }}</td>
+                <td>
+                  <nz-statistic [nzValue]="stat.totalSold" [nzValueStyle]="{ fontSize: '14px' }">
+                  </nz-statistic>
+                </td>
+                <td>
+                  <nz-statistic 
+                    [nzValue]="stat.totalRevenue" 
+                    nzSuffix="R$"
+                    [nzValueStyle]="{ fontSize: '14px', color: '#1890ff' }">
+                  </nz-statistic>
+                </td>
+                <td>
+                  <nz-tag [nzColor]="stat.isActive ? 'green' : 'red'" *ngIf="stat.isActive !== undefined">
+                    {{ stat.isActive ? 'Ativo' : 'Inativo' }}
+                  </nz-tag>
+                  <span *ngIf="stat.isActive === undefined">N/A</span>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+          
+          <div *ngIf="productStats.length === 0" class="empty-message">
+            <p>Nenhum produto foi vendido ainda</p>
+          </div>
+        </nz-card>
+      </div>
+
+      <!-- Usuários Recentes -->
+      <div nz-col nzXs="24" nzLg="10">
+        <nz-card nzTitle="Usuários Mais Recentes">
+          <nz-table #walletTable [nzData]="recentWallets" nzSize="middle" [nzShowPagination]="false">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nome</th>
+                <th>Saldo</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let wallet of walletTable.data">
+                <td>
+                  <strong>{{ wallet.code }}</strong>
+                </td>
+                <td>{{ wallet.user.name }}</td>
+                <td>
+                  <nz-statistic 
+                    [nzValue]="wallet.balance" 
+                    nzSuffix="R$"
+                    [nzValueStyle]="{ fontSize: '14px', color: wallet.balance > 0 ? '#52c41a' : '#ff4d4f' }">
+                  </nz-statistic>
+                </td>
+                <td>{{ formatDate(wallet.createdAt) }}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+          
+          <div *ngIf="recentWallets.length === 0" class="empty-message">
+            <p>Nenhum usuário cadastrado</p>
+          </div>
+        </nz-card>
+      </div>
+    </div>
+  </nz-spin>
+</div>
