@@ -93,26 +93,26 @@ export class Dashboard implements OnInit {
     this.summary = {
       activeProducts: products.filter(p => p.isActive).length,
       totalProducts: products.length,
-      totalSalesToday: salesToday.products.reduce((sum, p) => sum + p.totalQuantity, 0),
-      totalRevenueToday: salesToday.products.reduce((sum, p) => sum + p.totalValue, 0)
+      totalSalesToday: salesToday.summary.totalItems,
+      totalRevenueToday: salesToday.summary.totalValue
     };
   }
 
   private calculateProductStatsFromReports(salesToday: SalesTodayResponse, products: Product[]) {
-    const productMap = new Map<string, Product>();
-    products.forEach(product => {
-      productMap.set(product.id, product);
+    const salesMap = new Map<string, any>();
+    salesToday.products.forEach(productSales => {
+      salesMap.set(productSales.productId, productSales);
     });
 
-    this.productStats = salesToday.products.map(productSales => {
-      const product = productMap.get(productSales.productId);
+    this.productStats = products.map(product => {
+      const sales = salesMap.get(product.id);
       return {
-        productId: productSales.productId,
-        productName: productSales.productName,
-        totalSold: productSales.totalQuantity,
-        totalRevenue: productSales.totalValue,
-        category: product?.category,
-        isActive: product?.isActive
+        productId: product.id,
+        productName: product.name,
+        totalSold: sales?.totalQuantity || 0,
+        totalRevenue: sales?.totalValue || 0,
+        category: product.category,
+        isActive: product.isActive
       };
     }).sort((a, b) => b.totalSold - a.totalSold);
   }
