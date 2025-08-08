@@ -47,8 +47,9 @@
   </div>
 
   <!-- Tabela -->
-  <nz-table #walletsTable [nzData]="wallets" [nzLoading]="loading" [nzFrontPagination]="false"
-    [nzShowPagination]="false" [nzScroll]="{ y: '640px' }" nzSize="middle">
+  <div class="table-container">
+    <nz-table #walletsTable [nzData]="wallets" [nzLoading]="loading" [nzFrontPagination]="false"
+      [nzShowPagination]="false" [nzScroll]="{ x: '1200px', y: 'calc(100vh - 400px)' }" nzSize="middle">
     <thead>
       <tr>
         <th nzWidth="75px">Código</th>
@@ -121,7 +122,8 @@
         </td>
       </tr>
     </tbody>
-  </nz-table>
+    </nz-table>
+  </div>
 
   <!-- Paginação -->
   <div class="pagination-container">

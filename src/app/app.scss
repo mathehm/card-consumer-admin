@@ -6,7 +6,7 @@
 }
 
 .app-layout {
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .menu-sidebar {
@@ -67,6 +67,24 @@ nz-header {
   padding: 0;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.user-dropdown {
+  padding: 0 24px;
+  
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    
+    &:hover {
+      color: #1890ff;
+    }
+  }
 }
 
 nz-content {

@@ -1,0 +1,53 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="logo-section">
+      <img src="/images/logo.png" alt="logo" class="logo">
+      <h1>Nimu</h1>
+    </div>
+    
+    <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <nz-alert 
+        *ngIf="showError"
+        nzType="error"
+        nzMessage="Usuário ou senha inválidos"
+        nzCloseable
+        (nzOnClose)="showError = false">
+      </nz-alert>
+
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="username">Usuário</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input formControlName="username" id="username" placeholder="Digite seu usuário" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="password">Senha</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-input-group [nzSuffix]="suffixTemplate">
+            <input 
+              [type]="passwordVisible ? 'text' : 'password'"
+              nz-input 
+              formControlName="password" 
+              id="password" 
+              placeholder="Digite sua senha" />
+          </nz-input-group>
+          <ng-template #suffixTemplate>
+            <nz-icon 
+              [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+              (click)="passwordVisible = !passwordVisible">
+            </nz-icon>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nz-row class="login-form-margin">
+        <nz-form-control [nzSpan]="14" [nzOffset]="6">
+          <button nz-button class="login-form-button" [nzType]="'primary'" [nzLoading]="false">
+            Entrar
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>
+</div>
