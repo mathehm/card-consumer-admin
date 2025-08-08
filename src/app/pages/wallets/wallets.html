@@ -182,7 +182,7 @@
 
 <!-- Modal para Adicionar Crédito -->
 <nz-modal [(nzVisible)]="isCreditModalVisible" [nzTitle]="'Adicionar Crédito - ' + (currentWallet?.user?.name || '')"
-  (nzOnCancel)="isCreditModalVisible = false" (nzOnOk)="addCredit()" nzOkText="Adicionar" nzCancelText="Cancelar">
+  (nzOnCancel)="isCreditModalVisible = false" (nzOnOk)="addCreditWithReload()" nzOkText="Adicionar" nzCancelText="Cancelar">
 
   <ng-container *nzModalContent>
     <form nz-form nzLayout="vertical">

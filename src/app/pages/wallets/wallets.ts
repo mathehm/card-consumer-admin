@@ -235,6 +235,36 @@ export class Wallets implements OnInit {
     });
   }
 
+  addCreditWithReload() {
+    if (!this.currentWallet) return;
+
+    this.walletsService.addCredit(this.currentWallet.code, this.creditForm).subscribe({
+      next: (response) => {
+        this.isCreditModalVisible = false;
+        this.reloadWallets('Crédito adicionado com sucesso!');
+        
+        // Buscar dados completos da carteira incluindo transações
+        this.walletsService.getWallet(this.currentWallet!.code).pipe(
+          finalize(() => {
+            this.cdr.markForCheck();
+          })
+        ).subscribe({
+          next: (fullWallet) => {
+            this.selectedWallet = fullWallet;
+          },
+          error: (error) => {
+            console.error('Erro ao carregar detalhes da carteira:', error);
+            this.message.error('Erro ao carregar detalhes da carteira');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Erro ao adicionar crédito:', error);
+        this.message.error('Erro ao adicionar crédito');
+      }
+    });
+  }
+
   // Drawer de detalhes
   openWalletDetails(wallet: Wallet) {
     this.selectedWallet = null;
