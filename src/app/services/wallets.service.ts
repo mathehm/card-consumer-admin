@@ -34,7 +34,7 @@ export interface Wallet {
   balance: number;
   user: User;
   transactions?: Transaction[];
-  totalCredit?: number;
+  totalCredit: number;
   alreadyWinner?: boolean;
   createdAt?: string | FirebaseTimestamp;
   updatedAt?: string | FirebaseTimestamp;
