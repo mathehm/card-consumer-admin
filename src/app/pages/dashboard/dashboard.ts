@@ -8,17 +8,14 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { forkJoin } from 'rxjs';
-import { WalletsService, Wallet } from '../../services/wallets.service';
 import { ProductsService, Product } from '../../services/products.service';
 import { ReportsService, SalesTodayResponse, ProductSales } from '../../services/reports.service';
 
 interface DashboardSummary {
-  totalWallets: number;
-  totalBalance: number;
-  totalCredit: number;
   activeProducts: number;
   totalProducts: number;
-  eligibleForLottery: number;
+  totalSalesToday: number;
+  totalRevenueToday: number;
 }
 
 interface ProductStats {
@@ -49,20 +46,16 @@ interface ProductStats {
 export class Dashboard implements OnInit {
   loading = false;
   summary: DashboardSummary = {
-    totalWallets: 0,
-    totalBalance: 0,
-    totalCredit: 0,
     activeProducts: 0,
     totalProducts: 0,
-    eligibleForLottery: 0
+    totalSalesToday: 0,
+    totalRevenueToday: 0
   };
   
   productStats: ProductStats[] = [];
-  recentWallets: Wallet[] = [];
   salesToday: SalesTodayResponse | null = null;
 
   constructor(
-    private walletsService: WalletsService,
     private productsService: ProductsService,
     private reportsService: ReportsService,
     private cdr: ChangeDetectorRef
@@ -77,21 +70,13 @@ export class Dashboard implements OnInit {
     this.cdr.markForCheck();
 
     forkJoin({
-      wallets: this.walletsService.getWallets(1, 1000),
       products: this.productsService.getProducts(),
       salesToday: this.reportsService.getSalesToday()
     }).subscribe({
-      next: ({ wallets, products, salesToday }) => {
+      next: ({ products, salesToday }) => {
         this.salesToday = salesToday;
-        this.calculateSummary(wallets.data, products, salesToday);
+        this.calculateSummary(products, salesToday);
         this.calculateProductStatsFromReports(salesToday, products);
-        this.recentWallets = wallets.data
-          .sort((a, b) => {
-            const dateA = this.getDateFromTimestamp(a.createdAt);
-            const dateB = this.getDateFromTimestamp(b.createdAt);
-            return dateB.getTime() - dateA.getTime();
-          })
-          .slice(0, 5);
         
         this.loading = false;
         this.cdr.markForCheck();
@@ -104,14 +89,12 @@ export class Dashboard implements OnInit {
     });
   }
 
-  private calculateSummary(wallets: Wallet[], products: Product[], salesToday: SalesTodayResponse) {
+  private calculateSummary(products: Product[], salesToday: SalesTodayResponse) {
     this.summary = {
-      totalWallets: wallets.length,
-      totalBalance: wallets.reduce((sum, wallet) => sum + wallet.balance, 0),
-      totalCredit: wallets.reduce((sum, wallet) => sum + wallet.totalCredit, 0),
       activeProducts: products.filter(p => p.isActive).length,
       totalProducts: products.length,
-      eligibleForLottery: wallets.filter(w => w.lotteryStatus === 'eligible').length
+      totalSalesToday: salesToday.products.reduce((sum, p) => sum + p.totalQuantity, 0),
+      totalRevenueToday: salesToday.products.reduce((sum, p) => sum + p.totalValue, 0)
     };
   }
 
