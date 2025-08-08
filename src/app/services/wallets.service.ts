@@ -38,6 +38,7 @@ export interface Wallet {
   alreadyWinner?: boolean;
   createdAt?: string | FirebaseTimestamp;
   updatedAt?: string | FirebaseTimestamp;
+  lotteryStatus?: 'eligible' | 'winner' | 'ineligible';
 }
 
 export interface CreateWalletRequest {

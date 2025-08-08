@@ -339,10 +339,10 @@ export class Wallets implements OnInit {
   }
 
   getStatusTag(wallet: Wallet): { color: string; text: string } {
-    if (wallet.alreadyWinner) {
+    if (wallet.lotteryStatus === 'winner') {
       return { color: 'gold', text: 'Vencedor' };
     }
-    if (wallet.balance && wallet.balance > 0) {
+    if (wallet.lotteryStatus === 'eligible') {
       return { color: 'green', text: 'Elegível' };
     }
     return { color: 'red', text: 'Inelegível' };
