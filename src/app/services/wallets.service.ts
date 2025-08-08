@@ -7,6 +7,14 @@ export interface User {
   phone: string;
 }
 
+export interface Product {
+  price: number;
+  productName: string;
+  category: string;
+  id: number;
+  quantity: number;
+}
+
 export interface Transaction {
   id: string;
   value: number;
@@ -14,6 +22,9 @@ export interface Transaction {
   date: string;
   hasProducts: boolean;
   itemsCount: number;
+  products?: Product[]
+  description?: string;
+  cancellationReason?: string;
 }
 
 export interface Wallet {

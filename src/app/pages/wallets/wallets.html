@@ -13,22 +13,18 @@
     <div class="filters-row">
       <div class="filter-item">
         <label>Buscar:</label>
-        <input nz-input 
-               [(ngModel)]="search" 
-               placeholder="Código, nome ou telefone..."
-               (keyup.enter)="onSearch()"
-               style="width: 250px;">
-        <button nz-button nzType="primary" (click)="onSearch()" style="margin-left: 8px;">
-          <span nz-icon nzType="search"></span>
-        </button>
+        <div style="display: grid; grid-template-columns: 1fr auto;">
+          <input nz-input [(ngModel)]="search" placeholder="Código, nome ou telefone..." (keyup.enter)="onSearch()">
+          <button nz-button nzType="primary" (click)="onSearch()" style="margin-left: 8px;">
+            <span nz-icon nzType="search"></span>
+          </button>
+        </div>
       </div>
 
       <div class="filter-item">
         <label>Ordenar por:</label>
         <nz-select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()" style="width: 200px;">
-          <nz-option *ngFor="let option of sortOptions" 
-                     [nzValue]="option.value" 
-                     [nzLabel]="option.label">
+          <nz-option *ngFor="let option of sortOptions" [nzValue]="option.value" [nzLabel]="option.label">
           </nz-option>
         </nz-select>
       </div>
@@ -36,9 +32,7 @@
       <div class="filter-item">
         <label>Status:</label>
         <nz-select [(ngModel)]="status" (ngModelChange)="onStatusChange()" style="width: 150px;">
-          <nz-option *ngFor="let option of statusOptions" 
-                     [nzValue]="option.value" 
-                     [nzLabel]="option.label">
+          <nz-option *ngFor="let option of statusOptions" [nzValue]="option.value" [nzLabel]="option.label">
           </nz-option>
         </nz-select>
       </div>
@@ -53,21 +47,17 @@
   </div>
 
   <!-- Tabela -->
-  <nz-table #walletsTable 
-            [nzData]="wallets" 
-            [nzLoading]="loading" 
-            [nzFrontPagination]="false"
-            [nzShowPagination]="false"
-            nzSize="middle">
+  <nz-table #walletsTable [nzData]="wallets" [nzLoading]="loading" [nzFrontPagination]="false"
+    [nzShowPagination]="false" [nzScroll]="{ y: '640px' }" nzSize="middle">
     <thead>
       <tr>
-        <th>Código</th>
+        <th nzWidth="75px">Código</th>
         <th>Nome</th>
-        <th>Telefone</th>
-        <th>Saldo</th>
-        <th>Status</th>
+        <th nzWidth="155px">Telefone</th>
+        <th nzWidth="100px">Saldo</th>
+        <th nzWidth="85px">Status</th>
         <th>Criado em</th>
-        <th nzWidth="250px">Ações</th>
+        <th nzRight nzWidth="175px">Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -88,37 +78,45 @@
           </nz-tag>
         </td>
         <td>{{ formatDate(wallet.createdAt) }}</td>
-        <td>
+        <td nzRight>
           <div class="action-buttons">
-            <button nz-button nzSize="small" nzType="default" 
-                    (click)="openWalletDetails(wallet)">
+            <button nz-button nzSize="default" nzType="default" (click)="openWalletDetails(wallet)">
               <span nz-icon nzType="eye"></span>
-              Ver
             </button>
-            
-            <button nz-button nzSize="small" nzType="primary" 
-                    (click)="openCreditModal(wallet)">
-              <span nz-icon nzType="plus-circle"></span>
-              Crédito
+
+            <button nz-button nzSize="default" nzType="primary" (click)="openCreditModal(wallet)">
+              <span nz-icon nzType="dollar"></span>
             </button>
-            
-            <button nz-button nzSize="small" nzType="default" 
-                    *ngIf="!wallet.alreadyWinner"
-                    (click)="markAsWinner(wallet.code)"
-                    nz-popconfirm
-                    nzPopconfirmTitle="Marcar como vencedora?"
-                    nzPopconfirmPlacement="top">
+
+            <button nz-button nzSize="default" nzType="default" *ngIf="!wallet.alreadyWinner"
+              nz-popover nzPopconfirmTitle="Marcar como vencedora?"
+              nzPopconfirmPlacement="top"
+              nzPopoverTrigger="click"
+              [nzPopoverContent]="winnerTemplate"
+            >
               <span nz-icon nzType="trophy"></span>
-              Vencedor
             </button>
-            
-            <button nz-button nzSize="small" nzType="primary" nzDanger 
-                    (click)="deleteWallet(wallet.code)"
-                    nz-popconfirm
-                    nzPopconfirmTitle="Tem certeza que deseja excluir esta carteira?"
-                    nzPopconfirmPlacement="top">
+            <ng-template #winnerTemplate>
+              <button nz-button nzSize="small" nzType="primary" (click)="markAsWinner(wallet.code)">
+                <nz-icon nzType="trophy" />
+                Confirmar
+              </button>
+            </ng-template>
+
+            <button nz-button nzSize="default" nzType="primary" nzDanger
+              nz-popover nzPopconfirmTitle="Tem certeza que deseja excluir esta carteira?"
+              nzPopconfirmPlacement="top"
+              nzPopoverTrigger="click"
+              [nzPopoverContent]="deleteTemplate"
+            >
               <span nz-icon nzType="delete"></span>
             </button>
+            <ng-template #deleteTemplate>
+              <button nz-button nzDanger nzSize="small" nzType="primary" (click)="deleteWallet(wallet.code)">
+                <nz-icon nzType="delete" />
+                Confirmar
+              </button>
+            </ng-template>
           </div>
         </td>
       </tr>
@@ -127,14 +125,8 @@
 
   <!-- Paginação -->
   <div class="pagination-container">
-    <nz-pagination
-      [nzPageIndex]="page"
-      [nzTotal]="total"
-      [nzPageSize]="limit"
-      [nzShowSizeChanger]="true"
-      [nzPageSizeOptions]="[10, 20, 50, 100]"
-      nzShowQuickJumper
-      (nzPageIndexChange)="onPageChange($event)"
+    <nz-pagination [nzPageIndex]="page" [nzTotal]="total" [nzPageSize]="limit" [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50, 100]" nzShowQuickJumper (nzPageIndexChange)="onPageChange($event)"
       (nzPageSizeChange)="onPageSizeChange($event)">
     </nz-pagination>
   </div>
@@ -146,25 +138,16 @@
 </div>
 
 <!-- Modal para Criar Carteira -->
-<nz-modal
-  [(nzVisible)]="isCreateModalVisible"
-  nzTitle="Nova Carteira"
-  (nzOnCancel)="isCreateModalVisible = false"
-  (nzOnOk)="createWallet()"
-  nzOkText="Criar"
-  nzCancelText="Cancelar">
-  
+<nz-modal [(nzVisible)]="isCreateModalVisible" nzTitle="Nova Carteira" (nzOnCancel)="isCreateModalVisible = false"
+  (nzOnOk)="createWallet()" nzOkText="Criar" nzCancelText="Cancelar">
+
   <ng-container *nzModalContent>
     <form nz-form nzLayout="vertical">
       <nz-form-item>
         <nz-form-label nzRequired>Código</nz-form-label>
         <nz-form-control>
-          <nz-input-number
-            [(ngModel)]="walletForm.code"
-            name="code"
-            [nzMin]="1"
-            nzPlaceHolder="Digite o código da carteira"
-            style="width: 100%">
+          <nz-input-number [(ngModel)]="walletForm.code" name="code" [nzMin]="1"
+            nzPlaceHolder="Digite o código da carteira" style="width: 100%">
           </nz-input-number>
         </nz-form-control>
       </nz-form-item>
@@ -172,34 +155,22 @@
       <nz-form-item>
         <nz-form-label nzRequired>Nome do Usuário</nz-form-label>
         <nz-form-control>
-          <input nz-input 
-                 [(ngModel)]="walletForm.user.name" 
-                 name="userName"
-                 placeholder="Digite o nome completo" />
+          <input nz-input [(ngModel)]="walletForm.user.name" name="userName" placeholder="Digite o nome completo" />
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
         <nz-form-label nzRequired>Telefone</nz-form-label>
         <nz-form-control>
-          <input nz-input 
-                 [(ngModel)]="walletForm.user.phone" 
-                 name="userPhone"
-                 placeholder="(11) 99999-9999" />
+          <input nz-input [(ngModel)]="walletForm.user.phone" name="userPhone" placeholder="(11) 99999-9999" />
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
         <nz-form-label>Saldo Inicial</nz-form-label>
         <nz-form-control>
-          <nz-input-number
-            [(ngModel)]="walletForm.balance"
-            name="balance"
-            [nzMin]="0"
-            [nzStep]="0.01"
-            [nzPrecision]="2"
-            nzPlaceHolder="0.00"
-            style="width: 100%">
+          <nz-input-number [(ngModel)]="walletForm.balance" name="balance" [nzMin]="0" [nzStep]="0.01" [nzPrecision]="2"
+            nzPlaceHolder="0.00" style="width: 100%">
           </nz-input-number>
         </nz-form-control>
       </nz-form-item>
@@ -208,14 +179,9 @@
 </nz-modal>
 
 <!-- Modal para Adicionar Crédito -->
-<nz-modal
-  [(nzVisible)]="isCreditModalVisible"
-  [nzTitle]="'Adicionar Crédito - ' + (currentWallet?.user?.name || '')"
-  (nzOnCancel)="isCreditModalVisible = false"
-  (nzOnOk)="addCredit()"
-  nzOkText="Adicionar"
-  nzCancelText="Cancelar">
-  
+<nz-modal [(nzVisible)]="isCreditModalVisible" [nzTitle]="'Adicionar Crédito - ' + (currentWallet?.user?.name || '')"
+  (nzOnCancel)="isCreditModalVisible = false" (nzOnOk)="addCredit()" nzOkText="Adicionar" nzCancelText="Cancelar">
+
   <ng-container *nzModalContent>
     <form nz-form nzLayout="vertical">
       <nz-form-item>
@@ -228,14 +194,8 @@
       <nz-form-item>
         <nz-form-label nzRequired>Valor do Crédito</nz-form-label>
         <nz-form-control>
-          <nz-input-number
-            [(ngModel)]="creditForm.value"
-            name="creditValue"
-            [nzMin]="0.01"
-            [nzStep]="0.01"
-            [nzPrecision]="2"
-            nzPlaceHolder="0.00"
-            style="width: 100%">
+          <nz-input-number [(ngModel)]="creditForm.value" name="creditValue" [nzMin]="0.01" [nzStep]="0.01"
+            [nzPrecision]="2" nzPlaceHolder="0.00" style="width: 100%">
           </nz-input-number>
         </nz-form-control>
       </nz-form-item>
@@ -244,13 +204,9 @@
 </nz-modal>
 
 <!-- Drawer para Detalhes da Carteira -->
-<nz-drawer
-  [nzVisible]="isWalletDrawerVisible"
-  [nzWidth]="600"
-  nzPlacement="right"
-  [nzTitle]="getWalletDrawerTitle()"
+<nz-drawer [nzVisible]="isWalletDrawerVisible" [nzWidth]="600" nzPlacement="right" [nzTitle]="getWalletDrawerTitle()"
   (nzOnClose)="isWalletDrawerVisible = false">
-  
+
   <ng-container *nzDrawerContent>
     <div *ngIf="selectedWallet" class="wallet-details">
       <div class="detail-section">
@@ -259,13 +215,14 @@
           <strong>Código:</strong> {{ selectedWallet.code }}
         </div>
         <div class="detail-item">
-          <strong>Saldo Atual:</strong> 
-          <span [style.color]="selectedWallet.balance > 0 ? '#52c41a' : '#ff4d4f'" style="font-size: 16px; font-weight: 600;">
+          <strong>Saldo Atual:</strong>
+          <span [style.color]="selectedWallet.balance > 0 ? '#52c41a' : '#ff4d4f'"
+            style="font-size: 16px; font-weight: 600;">
             {{ selectedWallet.balance | currency:'BRL':'symbol':'1.2-2' }}
           </span>
         </div>
         <div class="detail-item" *ngIf="selectedWallet.totalCredit !== undefined">
-          <strong>Crédito Total Recebido:</strong> 
+          <strong>Crédito Total Recebido:</strong>
           <span style="color: #1890ff; font-weight: 600;">
             {{ selectedWallet.totalCredit | currency:'BRL':'symbol':'1.2-2' }}
           </span>
@@ -293,8 +250,10 @@
 
       <div class="detail-section">
         <h3>Histórico de Transações</h3>
-        <div *ngIf="selectedWallet.transactions && selectedWallet.transactions.length > 0; else noTransactions" class="transactions-list">
-          <div *ngFor="let transaction of selectedWallet.transactions; trackBy: trackTransaction" class="transaction-item">
+        <div *ngIf="selectedWallet.transactions && selectedWallet.transactions.length > 0; else noTransactions"
+          class="transactions-list">
+          <div *ngFor="let transaction of selectedWallet.transactions; trackBy: trackTransaction"
+            class="transaction-item">
             <div class="transaction-header">
               <div class="transaction-left">
                 <span class="transaction-type" [ngClass]="'type-' + transaction.type">
@@ -309,38 +268,41 @@
                 </span>
               </div>
             </div>
+            <span *ngIf="transaction.hasProducts" class="transaction-products">
+              <ng-container *ngFor="let product of transaction.products">
+                <span nz-icon nzType="shopping-cart"></span>
+                <span class="transaction-product">{{ product.quantity }}x {{ product.productName }}</span>
+              </ng-container>
+            </span>
+            <span *ngIf="transaction?.description" class="transaction-products">{{ transaction.description }}</span>
+            <span *ngIf="transaction?.cancellationReason" class="transaction-products">{{ transaction.cancellationReason }}</span>
             <div class="transaction-meta">
               <span class="transaction-date">
                 <span nz-icon nzType="calendar"></span>
                 {{ formatDate(transaction.date) }}
               </span>
               <div class="transaction-actions">
-                <span *ngIf="transaction.hasProducts" class="transaction-products">
-                  <span nz-icon nzType="shopping-cart"></span>
-                  {{ transaction.itemsCount }} produto(s)
-                </span>
-                <button nz-button 
-                        nzSize="small" 
-                        nzType="text" 
-                        nzDanger
-                        (click)="cancelTransaction(selectedWallet.code, transaction.id)"
-                        nz-popconfirm
-                        nzPopconfirmTitle="Tem certeza que deseja cancelar esta transação? Esta ação não pode ser desfeita."
-                        nzPopconfirmPlacement="top"
-                        style="margin-left: 8px;"
-                        nz-tooltip="Cancelar transação">
-                  <span nz-icon nzType="close-circle"></span>
+                <button nz-button nzSize="small" nzType="text" nzDanger nzGhost
+                  nz-popover nzPopconfirmTitle="Tem certeza que deseja cancelar esta transação? Esta ação não pode ser desfeita."
+                  nzPopconfirmPlacement="top" style="margin-left: 8px;"
+                  nzPopoverTrigger="click"
+                  [nzPopoverContent]="cancelTransactionTemplate"
+                >
                   Cancelar
                 </button>
+                <ng-template #cancelTransactionTemplate>
+                  <button nz-button nzDanger nzSize="small" nzType="primary" (click)="cancelTransaction(selectedWallet.code, transaction.id)">
+                    <nz-icon nzType="delete" />
+                    Confirmar
+                  </button>
+                </ng-template>
               </div>
             </div>
           </div>
         </div>
         <ng-template #noTransactions>
           <div class="no-transactions">
-            <nz-empty 
-              nzNotFoundImage="simple" 
-              nzNotFoundContent="Nenhuma transação encontrada">
+            <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Nenhuma transação encontrada">
             </nz-empty>
           </div>
         </ng-template>
@@ -354,24 +316,21 @@
             <span nz-icon nzType="plus-circle"></span>
             Adicionar Crédito
           </button>
-          
-          <button nz-button nzType="default" 
-                  *ngIf="!selectedWallet.alreadyWinner"
-                  (click)="markAsWinner(selectedWallet.code)"
-                  nz-popconfirm
-                  nzPopconfirmTitle="Marcar como vencedora?"
-                  nzPopconfirmPlacement="top">
+
+          <button nz-button nzType="default" *ngIf="!selectedWallet.alreadyWinner"
+            (click)="markAsWinner(selectedWallet.code)" nz-popconfirm nzPopconfirmTitle="Marcar como vencedora?"
+            nzPopconfirmPlacement="top">
             <span nz-icon nzType="trophy"></span>
             Marcar como Vencedora
           </button>
         </div>
       </div>
     </div>
-    
+
     <!-- Loading state -->
     <div *ngIf="!selectedWallet" class="loading-wallet-details">
       <nz-spin nzSize="large">
-        <div style="text-align: center; padding: 50px;">
+        <div style="text-align: center; padding-top: 75px;">
           Carregando detalhes da carteira...
         </div>
       </nz-spin>

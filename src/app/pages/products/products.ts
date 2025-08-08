@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -33,7 +33,8 @@ import { ProductsService, Product, CreateProductRequest, UpdateProductRequest, F
     NzTagModule
   ],
   templateUrl: './products.html',
-  styleUrl: './products.scss'
+  styleUrl: './products.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Products implements OnInit {
   products: Product[] = [];
@@ -51,7 +52,8 @@ export class Products implements OnInit {
 
   constructor(
     private productsService: ProductsService,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -60,36 +62,42 @@ export class Products implements OnInit {
 
   loadProducts() {
     this.loading = true;
+    this.cdr.markForCheck();
+    
     this.productsService.getProducts().subscribe({
       next: (products) => {
         this.products = products;
         this.loading = false;
+        this.cdr.markForCheck();
         // Não mostrar mensagem de sucesso no carregamento inicial
       },
       error: (error) => {
         console.error('Erro ao carregar produtos:', error);
         this.message.error('Erro ao carregar produtos');
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   reloadProducts(successMessage?: string) {
     this.loading = true;
+    this.cdr.markForCheck();
+    
     this.productsService.getProducts().subscribe({
       next: (products) => {
         this.products = products;
         this.loading = false;
         if (successMessage) {
-          setTimeout(() => {
-            this.message.success(successMessage);
-          }, 0);
+          this.message.success(successMessage);
         }
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Erro ao carregar produtos:', error);
         this.message.error('Erro ao carregar produtos');
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }

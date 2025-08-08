@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -6,7 +6,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -18,6 +18,7 @@ import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { WalletsService, Wallet, CreateWalletRequest, AddCreditRequest, FirebaseTimestamp } from '../../services/wallets.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-wallets',
@@ -28,7 +29,7 @@ import { WalletsService, Wallet, CreateWalletRequest, AddCreditRequest, Firebase
     NzButtonModule, 
     NzIconModule, 
     NzEmptyModule, 
-    NzPopconfirmModule,
+    NzPopoverModule,
     NzModalModule,
     NzFormModule,
     NzInputModule,
@@ -41,7 +42,8 @@ import { WalletsService, Wallet, CreateWalletRequest, AddCreditRequest, Firebase
     NzToolTipModule
   ],
   templateUrl: './wallets.html',
-  styleUrl: './wallets.scss'
+  styleUrl: './wallets.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Wallets implements OnInit {
   wallets: Wallet[] = [];
@@ -50,8 +52,8 @@ export class Wallets implements OnInit {
   page = 1;
   limit = 10;
   search = '';
-  sortBy = 'createdAt_desc';
-  status = 'all';
+  sortBy = 'code_desc';
+  status = '';
 
   // Modais
   isCreateModalVisible = false;
@@ -99,7 +101,8 @@ export class Wallets implements OnInit {
 
   constructor(
     private walletsService: WalletsService,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -108,37 +111,44 @@ export class Wallets implements OnInit {
 
   loadWallets() {
     this.loading = true;
-    this.walletsService.getWallets(this.page, this.limit, this.search, this.sortBy, this.status).subscribe({
+    this.cdr.markForCheck();
+
+    this.walletsService.getWallets(this.page, this.limit, this.search, this.sortBy, this.status).pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
       next: (response) => {
         this.wallets = response.data;
         this.total = response.pagination.total;
-        this.loading = false;
       },
       error: (error) => {
         console.error('Erro ao carregar carteiras:', error);
         this.message.error('Erro ao carregar carteiras');
-        this.loading = false;
       }
     });
   }
 
   reloadWallets(successMessage?: string) {
     this.loading = true;
-    this.walletsService.getWallets(this.page, this.limit, this.search, this.sortBy, this.status).subscribe({
+
+    this.walletsService.getWallets(this.page, this.limit, this.search, this.sortBy, this.status).pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
       next: (response) => {
         this.wallets = response.data;
         this.total = response.pagination.total;
-        this.loading = false;
         if (successMessage) {
-          setTimeout(() => {
             this.message.success(successMessage);
-          }, 0);
         }
       },
       error: (error) => {
         console.error('Erro ao carregar carteiras:', error);
         this.message.error('Erro ao carregar carteiras');
-        this.loading = false;
       }
     });
   }
@@ -231,7 +241,11 @@ export class Wallets implements OnInit {
     this.isWalletDrawerVisible = true;
     
     // Buscar dados completos da carteira incluindo transações
-    this.walletsService.getWallet(wallet.code).subscribe({
+    this.walletsService.getWallet(wallet.code).pipe(
+      finalize(() => {
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
       next: (fullWallet) => {
         this.selectedWallet = fullWallet;
       },
