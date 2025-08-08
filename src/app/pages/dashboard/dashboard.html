@@ -55,8 +55,28 @@
     <div nz-row [nzGutter]="[16, 16]" class="detail-section">
       <!-- Ranking de Produtos -->
       <div nz-col nzXs="24">
-        <nz-card nzTitle="Ranking de Produtos Mais Vendidos">
-          <nz-table #productTable [nzData]="productStats" nzSize="middle" [nzShowPagination]="false" [nzScroll]="{ y: '400px' }">
+        <nz-card>
+          <div slot="title" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Ranking de Produtos</span>
+            <div>
+              <button 
+                nz-button 
+                [nzType]="rankingType === 'quantity' ? 'primary' : 'default'" 
+                nzSize="small"
+                (click)="changeRankingType('quantity')"
+                style="margin-right: 8px;">
+                Por Quantidade
+              </button>
+              <button 
+                nz-button 
+                [nzType]="rankingType === 'revenue' ? 'primary' : 'default'" 
+                nzSize="small"
+                (click)="changeRankingType('revenue')">
+                Por Receita
+              </button>
+            </div>
+          </div>
+          <nz-table #productTable [nzData]="productStats" nzSize="middle" [nzShowPagination]="false" [nzPageSize]="1000" [nzScroll]="{ y: '400px' }">
             <thead>
               <tr>
                 <th>Produto</th>
@@ -81,7 +101,7 @@
                 <td>
                   <nz-statistic 
                     [nzValue]="stat.totalRevenue" 
-                    nzSuffix="R$"
+                    nzPrefix="R$"
                     [nzValueStyle]="{ fontSize: '14px', color: '#1890ff' }">
                   </nz-statistic>
                 </td>

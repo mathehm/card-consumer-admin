@@ -7,6 +7,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 import { forkJoin } from 'rxjs';
 import { ProductsService, Product } from '../../services/products.service';
 import { ReportsService, SalesTodayResponse, ProductSales } from '../../services/reports.service';
@@ -37,7 +38,8 @@ interface ProductStats {
     NzIconModule,
     NzTableModule,
     NzTagModule,
-    NzSpinModule
+    NzSpinModule,
+    NzButtonModule
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -54,6 +56,7 @@ export class Dashboard implements OnInit {
   
   productStats: ProductStats[] = [];
   salesToday: SalesTodayResponse | null = null;
+  rankingType: 'quantity' | 'revenue' = 'quantity';
 
   constructor(
     private productsService: ProductsService,
@@ -114,7 +117,23 @@ export class Dashboard implements OnInit {
         category: product.category,
         isActive: product.isActive
       };
-    }).sort((a, b) => b.totalSold - a.totalSold);
+    });
+    
+    this.sortProductStats();
+  }
+
+  sortProductStats() {
+    if (this.rankingType === 'quantity') {
+      this.productStats.sort((a, b) => b.totalSold - a.totalSold);
+    } else {
+      this.productStats.sort((a, b) => b.totalRevenue - a.totalRevenue);
+    }
+    this.cdr.markForCheck();
+  }
+
+  changeRankingType(type: 'quantity' | 'revenue') {
+    this.rankingType = type;
+    this.sortProductStats();
   }
 
   private getDateFromTimestamp(timestamp: any): Date {
