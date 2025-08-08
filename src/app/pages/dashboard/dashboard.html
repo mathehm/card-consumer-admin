@@ -12,7 +12,6 @@
           <nz-statistic 
             nzTitle="Produtos Ativos" 
             [nzValue]="summary.activeProducts"
-            nzPrefix="shopping"
             [nzValueStyle]="{ color: '#52c41a' }">
           </nz-statistic>
         </nz-card>
@@ -23,7 +22,6 @@
           <nz-statistic 
             nzTitle="Total de Produtos" 
             [nzValue]="summary.totalProducts"
-            nzPrefix="appstore"
             [nzValueStyle]="{ color: '#faad14' }">
           </nz-statistic>
         </nz-card>
@@ -32,9 +30,8 @@
       <div nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6">
         <nz-card>
           <nz-statistic 
-            nzTitle="Vendas Hoje" 
+            nzTitle="Itens Vendidos Hoje" 
             [nzValue]="summary.totalSalesToday"
-            nzPrefix="shopping-cart"
             [nzValueStyle]="{ color: '#1890ff' }">
           </nz-statistic>
         </nz-card>
@@ -45,50 +42,14 @@
           <nz-statistic 
             nzTitle="Receita Hoje" 
             [nzValue]="summary.totalRevenueToday"
-            nzPrefix="dollar"
+            nzPrefix="R$"
             [nzValueStyle]="{ color: '#722ed1' }"
-            nzSuffix="R$">
+          >
           </nz-statistic>
         </nz-card>
       </div>
     </div>
 
-    <!-- Vendas do Dia -->
-    <div nz-row [nzGutter]="[16, 16]" class="sales-today-section" *ngIf="salesToday">
-      <div nz-col nzXs="24" nzSm="8">
-        <nz-card>
-          <nz-statistic 
-            nzTitle="Vendas Hoje" 
-            [nzValue]="salesToday.summary.totalValue"
-            nzPrefix="dollar-circle"
-            nzSuffix="R$"
-            [nzValueStyle]="{ color: '#52c41a' }">
-          </nz-statistic>
-        </nz-card>
-      </div>
-      
-      <div nz-col nzXs="24" nzSm="8">
-        <nz-card>
-          <nz-statistic 
-            nzTitle="Itens Vendidos Hoje" 
-            [nzValue]="salesToday.summary.totalItems"
-            nzPrefix="shopping-cart"
-            [nzValueStyle]="{ color: '#1890ff' }">
-          </nz-statistic>
-        </nz-card>
-      </div>
-      
-      <div nz-col nzXs="24" nzSm="8">
-        <nz-card>
-          <nz-statistic 
-            nzTitle="Transações Hoje" 
-            [nzValue]="salesToday.summary.totalTransactions"
-            nzPrefix="transaction"
-            [nzValueStyle]="{ color: '#722ed1' }">
-          </nz-statistic>
-        </nz-card>
-      </div>
-    </div>
 
     <!-- Seção de Dados Detalhados -->
     <div nz-row [nzGutter]="[16, 16]" class="detail-section">
