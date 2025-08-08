@@ -7,7 +7,17 @@
     </button>
   </div>
 
-  <nz-table #basicTable [nzData]="products" [nzLoading]="loading" nzSize="middle">
+  <div class="search-container">
+    <nz-input-group nzPrefixIcon="search">
+      <input type="text" 
+             nz-input 
+             placeholder="Buscar produtos por nome..." 
+             [(ngModel)]="searchText"
+             (input)="onSearchChange()" />
+    </nz-input-group>
+  </div>
+
+  <nz-table #basicTable [nzData]="filteredProducts" [nzLoading]="loading" nzSize="middle">
     <thead>
       <tr>
         <th>Nome</th>
@@ -59,8 +69,12 @@
     </tbody>
   </nz-table>
 
-  <div *ngIf="!loading && products.length === 0" class="empty-state">
+  <div *ngIf="!loading && filteredProducts.length === 0 && products.length === 0" class="empty-state">
     <nz-empty nzNotFoundContent="Nenhum produto encontrado"></nz-empty>
+  </div>
+  
+  <div *ngIf="!loading && filteredProducts.length === 0 && products.length > 0" class="empty-state">
+    <nz-empty nzNotFoundContent="Nenhum produto encontrado com o termo de busca"></nz-empty>
   </div>
 </div>
 

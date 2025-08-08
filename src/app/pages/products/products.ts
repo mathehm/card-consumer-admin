@@ -40,6 +40,8 @@ import { ProductsService, Product, CreateProductRequest, UpdateProductRequest, F
 })
 export class Products implements OnInit {
   products: Product[] = [];
+  filteredProducts: Product[] = [];
+  searchText = '';
   loading = false;
   isModalVisible = false;
   isEditMode = false;
@@ -69,6 +71,7 @@ export class Products implements OnInit {
     this.productsService.getProducts().subscribe({
       next: (products) => {
         this.products = products;
+        this.filteredProducts = products;
         this.loading = false;
         this.cdr.markForCheck();
         // Não mostrar mensagem de sucesso no carregamento inicial
@@ -89,6 +92,8 @@ export class Products implements OnInit {
     this.productsService.getProducts().subscribe({
       next: (products) => {
         this.products = products;
+        this.filteredProducts = products;
+        this.applyFilter();
         this.loading = false;
         if (successMessage) {
           this.message.success(successMessage);
@@ -200,6 +205,22 @@ export class Products implements OnInit {
         this.message.error('Erro ao ativar produto');
       }
     });
+  }
+
+  onSearchChange() {
+    this.applyFilter();
+  }
+
+  private applyFilter() {
+    if (!this.searchText.trim()) {
+      this.filteredProducts = this.products;
+    } else {
+      const searchTerm = this.searchText.toLowerCase().trim();
+      this.filteredProducts = this.products.filter(product => 
+        product.name.toLowerCase().includes(searchTerm)
+      );
+    }
+    this.cdr.markForCheck();
   }
 
   formatDate(dateString: string | any): string {
