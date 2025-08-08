@@ -197,7 +197,8 @@
         <nz-form-label nzRequired>Valor do Crédito</nz-form-label>
         <nz-form-control>
           <nz-input-number [(ngModel)]="creditForm.value" name="creditValue" [nzMin]="0.01" [nzStep]="0.01"
-            [nzPrecision]="2" nzPlaceHolder="0.00" style="width: 100%">
+            [nzPrecision]="2" nzPlaceHolder="0.00" [nzFormatter]="formatCurrency" 
+            [nzParser]="parseCurrency" style="width: 100%">
           </nz-input-number>
         </nz-form-control>
       </nz-form-item>
