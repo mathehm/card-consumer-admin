@@ -20,6 +20,28 @@
   }
 }
 
+.date-filter {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  
+  nz-form-item {
+    margin-bottom: 0;
+  }
+  
+  nz-form-label {
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  
+  nz-form-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
 .summary-cards {
   margin-bottom: 32px;
   

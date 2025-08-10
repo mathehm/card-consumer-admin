@@ -2,6 +2,26 @@
   <div class="dashboard-header">
     <h2>Dashboard</h2>
     <p>Resumo geral do sistema</p>
+    
+    <!-- Filtro de Data -->
+    <div class="date-filter">
+      <nz-form-item>
+        <nz-form-label>Período do Relatório:</nz-form-label>
+        <nz-form-control>
+          <nz-range-picker 
+            [(ngModel)]="dateRange" 
+            nzFormat="dd/MM/yyyy"
+            [nzPlaceHolder]="['Data inicial', 'Data final']"
+            (ngModelChange)="onDateRangeChange()"
+            style="width: 240px; margin-right: 8px;">
+          </nz-range-picker>
+          <button nz-button nzType="default" (click)="clearDateRange()">
+            <span nz-icon nzType="close"></span>
+            Limpar
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
   </div>
 
   <nz-spin [nzSpinning]="loading">
@@ -30,7 +50,7 @@
       <div nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6">
         <nz-card>
           <nz-statistic 
-            nzTitle="Itens Vendidos Hoje" 
+            [nzTitle]="dateRange ? 'Itens Vendidos no Período' : 'Itens Vendidos Hoje'" 
             [nzValue]="summary.totalSalesToday"
             [nzValueStyle]="{ color: '#1890ff' }">
           </nz-statistic>
@@ -40,10 +60,33 @@
       <div nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6">
         <nz-card>
           <nz-statistic 
-            nzTitle="Receita Hoje" 
+            [nzTitle]="dateRange ? 'Receita do Período' : 'Receita Hoje'" 
             [nzValue]="summary.totalRevenueToday"
             nzPrefix="R$"
             [nzValueStyle]="{ color: '#722ed1' }"
+          >
+          </nz-statistic>
+        </nz-card>
+      </div>
+      
+      <div nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Crédito em Carteiras" 
+            [nzValue]="summary.totalWalletCredit || 0"
+            nzPrefix="R$"
+            [nzValueStyle]="{ color: '#52c41a' }"
+          >
+          </nz-statistic>
+        </nz-card>
+      </div>
+      
+      <div nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6">
+        <nz-card>
+          <nz-statistic 
+            nzTitle="Total de Vendas" 
+            [nzValue]="summary.totalSales || 0"
+            [nzValueStyle]="{ color: '#fa8c16' }"
           >
           </nz-statistic>
         </nz-card>

@@ -136,6 +136,16 @@ nz-table {
   margin-bottom: 16px;
 }
 
+.form-error {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+}
+
 // Drawer de detalhes
 .wallet-details {
   .detail-section {

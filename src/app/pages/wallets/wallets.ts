@@ -17,7 +17,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { WalletsService, Wallet, CreateWalletRequest, AddCreditRequest, FirebaseTimestamp } from '../../services/wallets.service';
+import { WalletsService, Wallet, CreateWalletRequest, AddCreditRequest, TransferRequest, FirebaseTimestamp } from '../../services/wallets.service';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -58,6 +58,7 @@ export class Wallets implements OnInit {
   // Modais
   isCreateModalVisible = false;
   isCreditModalVisible = false;
+  isTransferModalVisible = false;
   isWalletDrawerVisible = false;
   
   // Estados
@@ -75,6 +76,11 @@ export class Wallets implements OnInit {
   };
 
   creditForm: AddCreditRequest = {
+    value: 0
+  };
+
+  transferForm: TransferRequest = {
+    toCode: 0,
     value: 0
   };
 
@@ -261,6 +267,65 @@ export class Wallets implements OnInit {
       error: (error) => {
         console.error('Erro ao adicionar crédito:', error);
         this.message.error('Erro ao adicionar crédito');
+      }
+    });
+  }
+
+  // Modal de transferência
+  openTransferModal(wallet: Wallet) {
+    this.currentWallet = wallet;
+    this.transferForm = { toCode: 0, value: 0 };
+    this.isTransferModalVisible = true;
+  }
+
+  transferFunds() {
+    if (!this.currentWallet) return;
+
+    // Validações básicas
+    if (this.transferForm.toCode === this.currentWallet.code) {
+      this.message.error('Não é possível transferir para a mesma carteira');
+      return;
+    }
+
+    if (this.transferForm.value > this.currentWallet.balance) {
+      this.message.error('O valor não pode ser maior que o saldo disponível');
+      return;
+    }
+
+    if (this.transferForm.value <= 0) {
+      this.message.error('O valor deve ser maior que zero');
+      return;
+    }
+
+    this.walletsService.transferFunds(this.currentWallet.code, this.transferForm).subscribe({
+      next: (response) => {
+        this.isTransferModalVisible = false;
+        this.message.success('Transferência realizada com sucesso!');
+        this.reloadWallets();
+        
+        // Atualizar dados da carteira no drawer se estiver aberto
+        if (this.selectedWallet && this.selectedWallet.code === this.currentWallet!.code) {
+          this.walletsService.getWallet(this.currentWallet!.code).pipe(
+            finalize(() => {
+              this.cdr.markForCheck();
+            })
+          ).subscribe({
+            next: (fullWallet) => {
+              this.selectedWallet = fullWallet;
+            },
+            error: (error) => {
+              console.error('Erro ao carregar detalhes da carteira:', error);
+            }
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Erro ao transferir saldo:', error);
+        if (error.error?.message) {
+          this.message.error(error.error.message);
+        } else {
+          this.message.error('Erro ao transferir saldo');
+        }
       }
     });
   }

@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzGridModule } from 'ng-zorro-antd/grid';
@@ -8,15 +9,19 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzFormModule } from 'ng-zorro-antd/form';
 import { forkJoin } from 'rxjs';
 import { ProductsService, Product } from '../../services/products.service';
-import { ReportsService, SalesTodayResponse, ProductSales } from '../../services/reports.service';
+import { ReportsService, PartySummaryResponse } from '../../services/reports.service';
 
 interface DashboardSummary {
   activeProducts: number;
   totalProducts: number;
   totalSalesToday: number;
   totalRevenueToday: number;
+  totalWalletCredit: number;
+  totalSales: number;
 }
 
 interface ProductStats {
@@ -32,6 +37,7 @@ interface ProductStats {
   selector: 'app-dashboard',
   imports: [
     CommonModule,
+    FormsModule,
     NzCardModule,
     NzStatisticModule,
     NzGridModule,
@@ -39,7 +45,9 @@ interface ProductStats {
     NzTableModule,
     NzTagModule,
     NzSpinModule,
-    NzButtonModule
+    NzButtonModule,
+    NzDatePickerModule,
+    NzFormModule
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -51,12 +59,14 @@ export class Dashboard implements OnInit {
     activeProducts: 0,
     totalProducts: 0,
     totalSalesToday: 0,
-    totalRevenueToday: 0
+    totalRevenueToday: 0,
+    totalWalletCredit: 0,
+    totalSales: 0
   };
   
   productStats: ProductStats[] = [];
-  salesToday: SalesTodayResponse | null = null;
   rankingType: 'quantity' | 'revenue' = 'quantity';
+  dateRange: [Date, Date] | null = null;
 
   constructor(
     private productsService: ProductsService,
@@ -72,14 +82,26 @@ export class Dashboard implements OnInit {
     this.loading = true;
     this.cdr.markForCheck();
 
+    const productsRequest = this.productsService.getProducts();
+    
+    // Sempre usa party summary, se não há range de datas, usa data de hoje
+    const today = new Date();
+    const startDate = this.dateRange && this.dateRange[0] 
+      ? this.formatDateToString(this.dateRange[0])
+      : this.formatDateToString(today);
+    const endDate = this.dateRange && this.dateRange[1]
+      ? this.formatDateToString(this.dateRange[1])
+      : this.formatDateToString(today);
+
+    const reportsRequest = this.reportsService.getPartySummary(startDate, endDate);
+
     forkJoin({
-      products: this.productsService.getProducts(),
-      salesToday: this.reportsService.getSalesToday()
+      products: productsRequest,
+      reports: reportsRequest
     }).subscribe({
-      next: ({ products, salesToday }) => {
-        this.salesToday = salesToday;
-        this.calculateSummary(products, salesToday);
-        this.calculateProductStatsFromReports(salesToday, products);
+      next: ({ products, reports }) => {
+        this.calculateSummaryFromPartySummary(products, reports);
+        this.calculateProductStatsFromPartySummary(reports, products);
         
         this.loading = false;
         this.cdr.markForCheck();
@@ -92,35 +114,6 @@ export class Dashboard implements OnInit {
     });
   }
 
-  private calculateSummary(products: Product[], salesToday: SalesTodayResponse) {
-    this.summary = {
-      activeProducts: products.filter(p => p.isActive).length,
-      totalProducts: products.length,
-      totalSalesToday: salesToday.summary.totalItems,
-      totalRevenueToday: salesToday.summary.totalValue
-    };
-  }
-
-  private calculateProductStatsFromReports(salesToday: SalesTodayResponse, products: Product[]) {
-    const salesMap = new Map<string, any>();
-    salesToday.products.forEach(productSales => {
-      salesMap.set(productSales.productId, productSales);
-    });
-
-    this.productStats = products.map(product => {
-      const sales = salesMap.get(product.id);
-      return {
-        productId: product.id,
-        productName: product.name,
-        totalSold: sales?.totalQuantity || 0,
-        totalRevenue: sales?.totalValue || 0,
-        category: product.category,
-        isActive: product.isActive
-      };
-    });
-    
-    this.sortProductStats();
-  }
 
   sortProductStats() {
     if (this.rankingType === 'quantity') {
@@ -155,5 +148,68 @@ export class Dashboard implements OnInit {
       return new Date(dateString).toLocaleDateString('pt-BR');
     }
     return 'Data inválida';
+  }
+
+  // Métodos para lidar com date range
+  onDateRangeChange() {
+    this.loadDashboardData();
+  }
+
+  clearDateRange() {
+    this.dateRange = null;
+    this.loadDashboardData();
+  }
+
+  private formatDateToString(date: Date): string {
+    return date.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+  }
+
+
+  private calculateSummaryFromPartySummary(products: Product[], partySummary: PartySummaryResponse) {
+    this.summary = {
+      activeProducts: products.filter(p => p.isActive).length,
+      totalProducts: products.length,
+      totalSalesToday: partySummary.totalSalesQuantity,
+      totalRevenueToday: partySummary.totalSalesValue,
+      totalWalletCredit: partySummary.totalWalletCredit,
+      totalSales: partySummary.totalSales
+    };
+  }
+
+  private calculateProductStatsFromPartySummary(partySummary: PartySummaryResponse, products: Product[]) {
+    // Criar um mapa dos produtos por ID para referência rápida
+    const productsMap = new Map<string, Product>();
+    products.forEach(product => {
+      productsMap.set(product.id, product);
+    });
+
+    // Converter productBreakdown para ProductStats
+    this.productStats = partySummary.productBreakdown.map(breakdown => {
+      const product = productsMap.get(breakdown.productId);
+      return {
+        productId: breakdown.productId,
+        productName: breakdown.productName,
+        totalSold: breakdown.totalQuantity,
+        totalRevenue: breakdown.totalValue,
+        category: product?.category || 'N/A',
+        isActive: product?.isActive
+      };
+    });
+
+    // Adicionar produtos que não tiveram vendas
+    products.forEach(product => {
+      if (!partySummary.productBreakdown.find(b => b.productId === product.id)) {
+        this.productStats.push({
+          productId: product.id,
+          productName: product.name,
+          totalSold: 0,
+          totalRevenue: 0,
+          category: product.category,
+          isActive: product.isActive
+        });
+      }
+    });
+    
+    this.sortProductStats();
   }
 }

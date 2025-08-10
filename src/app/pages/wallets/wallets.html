@@ -319,6 +319,11 @@
             Adicionar Crédito
           </button>
 
+          <button nz-button nzType="default" (click)="openTransferModal(selectedWallet)">
+            <span nz-icon nzType="swap"></span>
+            Transferir Saldo
+          </button>
+
           <button nz-button nzType="default" *ngIf="!selectedWallet.alreadyWinner"
             (click)="markAsWinner(selectedWallet.code)" nz-popconfirm nzPopconfirmTitle="Marcar como vencedora?"
             nzPopconfirmPlacement="top">
@@ -339,3 +344,43 @@
     </div>
   </ng-container>
 </nz-drawer>
+
+<!-- Modal para Transferir Saldo -->
+<nz-modal [(nzVisible)]="isTransferModalVisible" [nzTitle]="'Transferir Saldo - ' + (currentWallet?.user?.name || '')"
+  (nzOnCancel)="isTransferModalVisible = false" (nzOnOk)="transferFunds()" nzOkText="Transferir" nzCancelText="Cancelar">
+
+  <ng-container *nzModalContent>
+    <form nz-form nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-label>Saldo Atual:</nz-form-label>
+        <div class="current-balance">
+          {{ currentWallet?.balance | currency:'BRL':'symbol':'1.2-2' }}
+        </div>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Código da Carteira Destino</nz-form-label>
+        <nz-form-control>
+          <nz-input-number [(ngModel)]="transferForm.toCode" name="toCode" [nzMin]="1"
+            nzPlaceHolder="Digite o código da carteira destino" style="width: 100%">
+          </nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Valor da Transferência</nz-form-label>
+        <nz-form-control>
+          <nz-input-number [(ngModel)]="transferForm.value" name="transferValue" [nzMin]="0.01" [nzStep]="0.01"
+            [nzPrecision]="2" [nzMax]="currentWallet?.balance" nzPlaceHolder="0.00" style="width: 100%">
+          </nz-input-number>
+        </nz-form-control>
+        <div *ngIf="transferForm.value > (currentWallet?.balance || 0)" class="form-error">
+          O valor não pode ser maior que o saldo disponível
+        </div>
+        <div *ngIf="transferForm.toCode === currentWallet?.code" class="form-error">
+          Não é possível transferir para a mesma carteira
+        </div>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

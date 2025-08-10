@@ -66,6 +66,23 @@ export interface SalesByPeriodResponse {
   }>;
 }
 
+export interface PartySummaryResponse {
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+  totalWalletCredit: number;
+  totalSalesValue: number;
+  totalSalesQuantity: number;
+  totalSales: number;
+  productBreakdown: Array<{
+    productId: string;
+    productName: string;
+    totalQuantity: number;
+    totalValue: number;
+  }>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -88,5 +105,13 @@ export class ReportsService {
       .set('endDate', endDate);
     
     return this.http.get<SalesByPeriodResponse>(`${this.apiUrl}/reports/sales-by-period`, { params });
+  }
+
+  getPartySummary(startDate: string, endDate: string): Observable<PartySummaryResponse> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    
+    return this.http.get<PartySummaryResponse>(`${this.apiUrl}/reports/party-summary`, { params });
   }
 }
