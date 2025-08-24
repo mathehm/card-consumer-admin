@@ -11,7 +11,9 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { forkJoin } from 'rxjs';
+import { ExportAsService, ExportAsConfig } from 'ngx-export-as';
 import { ProductsService, Product } from '../../services/products.service';
 import { ReportsService, PartySummaryResponse } from '../../services/reports.service';
 
@@ -47,7 +49,8 @@ interface ProductStats {
     NzSpinModule,
     NzButtonModule,
     NzDatePickerModule,
-    NzFormModule
+    NzFormModule,
+    NzDividerModule
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -71,7 +74,8 @@ export class Dashboard implements OnInit {
   constructor(
     private productsService: ProductsService,
     private reportsService: ReportsService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private exportAsService: ExportAsService
   ) {}
 
   ngOnInit() {
@@ -162,6 +166,55 @@ export class Dashboard implements OnInit {
 
   private formatDateToString(date: Date): string {
     return date.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+  }
+
+  exportToExcel() {
+    const exportConfig: ExportAsConfig = {
+      type: 'xlsx',
+      elementIdOrContent: 'productTable',
+      options: {
+        jsPDF: {
+          orientation: 'landscape'
+        },
+        pdfCallbackFn: (pdf: any) => {
+          // callback function
+        }
+      }
+    };
+
+    const fileName = this.getExportFileName('excel');
+    this.exportAsService.save(exportConfig, fileName).subscribe(() => {
+      console.log('Exportação para Excel concluída!');
+    });
+  }
+
+  exportToCSV() {
+    const exportConfig: ExportAsConfig = {
+      type: 'csv',
+      elementIdOrContent: 'productTable'
+    };
+
+    const fileName = this.getExportFileName('csv');
+    this.exportAsService.save(exportConfig, fileName).subscribe(() => {
+      console.log('Exportação para CSV concluída!');
+    });
+  }
+
+  private getExportFileName(format: string): string {
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
+    
+    let periodStr = '';
+    if (this.dateRange) {
+      const startDate = this.dateRange[0].toLocaleDateString('pt-BR');
+      const endDate = this.dateRange[1].toLocaleDateString('pt-BR');
+      periodStr = `_${startDate}_a_${endDate}`;
+    } else {
+      periodStr = `_${now.toLocaleDateString('pt-BR')}`;
+    }
+    
+    return `ranking-produtos${periodStr}_${dateStr}_${timeStr}`;
   }
 
 

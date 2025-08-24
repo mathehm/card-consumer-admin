@@ -101,13 +101,12 @@
         <nz-card>
           <div slot="title" style="display: flex; justify-content: space-between; align-items: center;">
             <span>Ranking de Produtos</span>
-            <div>
+            <div style="display: flex; gap: 8px; align-items: center;">
               <button 
                 nz-button 
                 [nzType]="rankingType === 'quantity' ? 'primary' : 'default'" 
                 nzSize="small"
-                (click)="changeRankingType('quantity')"
-                style="margin-right: 8px;">
+                (click)="changeRankingType('quantity')">
                 Por Quantidade
               </button>
               <button 
@@ -117,9 +116,28 @@
                 (click)="changeRankingType('revenue')">
                 Por Receita
               </button>
+              <nz-divider nzType="vertical"></nz-divider>
+              <button 
+                nz-button 
+                nzType="default" 
+                nzSize="small"
+                (click)="exportToExcel()"
+                title="Exportar para Excel">
+                <span nz-icon nzType="download" nzTheme="outline"></span>
+                Excel
+              </button>
+              <button 
+                nz-button 
+                nzType="default" 
+                nzSize="small"
+                (click)="exportToCSV()"
+                title="Exportar para CSV">
+                <span nz-icon nzType="download" nzTheme="outline"></span>
+                CSV
+              </button>
             </div>
           </div>
-          <nz-table #productTable [nzData]="productStats" nzSize="middle" [nzShowPagination]="false" [nzPageSize]="1000" [nzScroll]="{ y: '400px' }">
+          <nz-table #productTable id="productTable" [nzData]="productStats" nzSize="middle" [nzShowPagination]="false" [nzPageSize]="1000" [nzScroll]="{ y: '400px' }">
             <thead>
               <tr>
                 <th>Produto</th>
